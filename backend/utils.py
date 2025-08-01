@@ -2,6 +2,9 @@ from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 from huggingface_hub import login
 
+import re
+import html
+
 import pandas as pd
 import os
 from dotenv import load_dotenv
@@ -61,6 +64,23 @@ tokenizer = BertTokenizer.from_pretrained(model_name)
 model = BertForSequenceClassification.from_pretrained(model_name) 
 model.eval()
 
+
+def clean_comment(comment):
+    # 1. Remove HTML tags
+    comment = re.sub(r'<.*?>', '', comment)
+    
+    # 2. Remove links (URLs)
+    comment = re.sub(r'http\S+|www\S+|https\S+', '', comment)
+    
+    # 3. Unescape HTML entities (&amp; -> &, &#39; -> ')
+    comment = html.unescape(comment)
+    
+    # 4. Remove extra whitespace
+    comment = re.sub(r'\s+', ' ', comment).strip()
+    
+    return comment
+
+
 def predict_sentiment(comment):
     inputs = tokenizer(comment, return_tensors="pt", truncation=True, max_length=512)
     with torch.no_grad():
@@ -71,16 +91,17 @@ def predict_sentiment(comment):
 
 def analyze_sentiment(video_id):
     try:
-        # Simulate fetching comments from a video ID
-        file_path,_ = r"backend\extracted_comments\Wg6JSTlROMg.csv",10
+        file_path,_ = "backend\\extracted_comments\\"+video_id+".csv", 10
         
         if not file_path:
             return None
         data = pd.read_csv(file_path)
         if data.empty:
             return None
+        data['comment'] = data['comment'].astype(str).apply(clean_comment)
         data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
         sentiment_counts = data['sentiment'].value_counts().to_dict()
+        data.to_csv(file_path, index=False)  # Save the updated DataFrame back to CSV
         if not sentiment_counts:
             return None
         print(sentiment_counts)
@@ -90,3 +111,4 @@ def analyze_sentiment(video_id):
         print(f"Error analyzing sentiment: {e}")
         return None
 
+analyze_sentiment("bZa2uicOTAE") 
