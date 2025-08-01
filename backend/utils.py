@@ -1,5 +1,6 @@
 from transformers import BertTokenizer, BertForSequenceClassification
 import torch
+from huggingface_hub import login
 
 import pandas as pd
 import os
@@ -12,7 +13,7 @@ api_version = "v3"
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 def fetch_comments(video_id):
-    dir_path = "extracted_comments/"
+    dir_path = "backend\\extracted_comments\\"
 
     file_path = dir_path+f"{video_id}.csv"
     print("Start Scrapping")
@@ -29,7 +30,7 @@ def fetch_comments(video_id):
             request = youtube.commentThreads().list(
                 part="snippet",
                 videoId = video_id,
-                maxResults = 100,
+                maxResults = 1000,
                 pageToken = next_page_token
                 )
             
@@ -50,14 +51,14 @@ def fetch_comments(video_id):
         df = pd.DataFrame(comments,columns=['like_count','comment'])
         df.to_csv(file_path,index=False)
         print("Comments Exacted. And to this file path: "+file_path)
-        return len(comments)
+        return file_path, len(comments)
     except Exception as e:
-        print(e)
         return f"An Error has occur: {e}"
 
-model_name = "ganeshkharad/kg-hinglish-sentiment"
+login(os.getenv("HG_TOKEN"))
+model_name = 'ganeshkharad/gk-hinglish-sentiment'
 tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name)    
+model = BertForSequenceClassification.from_pretrained(model_name) 
 model.eval()
 
 def predict_sentiment(comment):
@@ -71,7 +72,7 @@ def predict_sentiment(comment):
 def analyze_sentiment(video_id):
     try:
         # Simulate fetching comments from a video ID
-        file_path = fetch_comments(video_id)
+        file_path,_ = r"backend\extracted_comments\Wg6JSTlROMg.csv",10
         
         if not file_path:
             return None
@@ -82,6 +83,7 @@ def analyze_sentiment(video_id):
         sentiment_counts = data['sentiment'].value_counts().to_dict()
         if not sentiment_counts:
             return None
+        print(sentiment_counts)
         return sentiment_counts
         
     except Exception as e:
