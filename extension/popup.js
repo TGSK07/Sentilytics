@@ -28,7 +28,7 @@ const sentiments = [
 ];
 
 // Backend base URL
-const BACKEND_URL = "http://localhost:8000";
+const BACKEND_URL = "http://localhost:5000";
 
 // Function to extract YouTube video ID from URL
 function getYouTubeVideoId(url) {
@@ -121,7 +121,7 @@ startBtn.addEventListener('click', async () => {
 
     try {
         // 3. Call backend for analysis using video ID in endpoint
-        const response = await fetch(`${BACKEND_URL}/api/analyze/${videoId}`, { method: "GET" });
+        const response = await fetch(`${BACKEND_URL}/analyze/${videoId}`, { method: "GET" });
 
         if (!response.ok) throw new Error("Server Error");
 
@@ -138,7 +138,7 @@ startBtn.addEventListener('click', async () => {
         if (data.details_url) {
             detailsLink.href = data.details_url;
         } else {
-            detailsLink.href = "http://localhost:3000"; // fallback
+            detailsLink.href = "http://localhost:5000"; // fallback
         }
 
         hideLoading();
