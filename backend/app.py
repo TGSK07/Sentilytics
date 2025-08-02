@@ -25,6 +25,10 @@ import google.generativeai as genai
 import json
 import requests
 
+import warnings
+warnings.filterwarnings("ignore", message=".*encoder_attention_mask.*")
+
+
 # Load environment variables
 load_dotenv()
 api_service_name = "youtube"

@@ -99,20 +99,31 @@ def generateGraphs(data, video_id, token, store_id):
         return resp.json().get("url")
 
     # ========= Pie Chart =========
-    labels = data['sentiment'].value_counts().index.tolist()
-    sizes = data['sentiment'].value_counts().values.tolist()
-    colors = ['gold', 'lightcoral', 'lightskyblue']
-    explode = (0.1, 0, 0)
+    color_map = {
+        "positive": "gold",
+        "neutral": "lightskyblue",
+        "negative": "lightcoral"
+    }
+
+    sentiment_order = ["positive", "neutral", "negative"]
+    labels = [s for s in sentiment_order if s in data['sentiment'].values]
+    sizes = [data['sentiment'].value_counts().get(s, 0) for s in labels]
+    colors = [color_map[s] for s in labels]
+
+    explode = [0.1 if s == "positive" else 0 for s in labels]
+
     fig_pie, ax_pie = plt.subplots(figsize=(6, 6))
     fig_pie.patch.set_alpha(0)  # Transparent background
-    ax_pie.set_facecolor('none')  
+    ax_pie.set_facecolor('none')
     ax_pie.pie(sizes, explode=explode, labels=labels, colors=colors,
-               autopct='%1.1f%%', shadow=True, startangle=140)
+            autopct='%1.1f%%', shadow=True, startangle=140)
     ax_pie.axis('equal')
+
     buf_pie = io.BytesIO()
     fig_pie.savefig(buf_pie, format='png', transparent=True, bbox_inches='tight')
     plt.close(fig_pie)
     graphs_urls['pie_chart'] = upload_to_vercel_blob(buf_pie, f"pie_{video_id}.png")
+
 
     # ========= Word Cloud =========
     text = ' '.join(data['comment'].astype(str).tolist())
