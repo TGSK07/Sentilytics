@@ -15,6 +15,7 @@ import json
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import io 
+import requests
 
 load_dotenv()
 api_service_name = "youtube"
@@ -80,35 +81,43 @@ def clean_comment(comment):
     
     return comment
 
-def generateGraphs(data, video_id):
+def generateGraphs(data, video_id, token, store_id):
     if data.empty:
         raise ValueError("Data is empty, cannot generate graphs.")
 
     graphs_urls = {}
 
+    def upload_to_vercel_blob(image_buffer, filename):
+        image_buffer.seek(0)
+        files = {"file": (filename, image_buffer)}
+        headers = {"Authorization": f"Bearer {token}"}
+        url = f"https://blob.vercel-storage.com/api/v1/blobs?slug={store_id}/{filename}&access=public"
+        resp = requests.post(url, headers=headers, files=files)
+        resp.raise_for_status()
+        return resp.json().get("url")
+
     # ========= Pie Chart =========
     labels = data['sentiment'].value_counts().index.tolist()
     sizes = data['sentiment'].value_counts().values.tolist()
     colors  = ['gold', 'lightcoral', 'lightskyblue']
-    explode = (0.1, 0, 0)  
-
+    explode = (0.1, 0, 0)
+    plt.figure(figsize=(6, 6))
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct='%1.1f%%', shadow=True, startangle=140)
     plt.axis('equal')
     buf_pie = io.BytesIO()
     plt.savefig(buf_pie, format='png', transparent=True, bbox_inches='tight')
     plt.close()
-    resp = blob.put(f"pie_{video_id}.png", buf_pie, options={"addRandomSuffix":"false", "access":"public"})
-    graphs_urls['pie_chart'] = resp.get('url')
+    pie_url = upload_to_vercel_blob(buf_pie, f"pie_{video_id}.png")
+    graphs_urls['pie_chart'] = pie_url
 
     # ========= Word Cloud =========
     text = ' '.join(data['comment'].astype(str).tolist())
     wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
     buf_wc = io.BytesIO()
     wordcloud.to_image().save(buf_wc, format='PNG')
-    buf_wc.seek(0)
-    resp = blob.put(f"word_cloud_{video_id}.png", buf_wc, options={"addRandomSuffix":"false", "access":"public"})
-    graphs_urls['word_cloud'] = resp.get('url')
+    wordcloud_url = upload_to_vercel_blob(buf_wc, f"word_cloud_{video_id}.png")
+    graphs_urls['word_cloud'] = wordcloud_url
 
     # ========= Bar Chart =========
     avg_likes = data.groupby('sentiment')['likecount'].mean().reset_index()
@@ -118,9 +127,10 @@ def generateGraphs(data, video_id):
     plt.ylabel('Average Like Count')
     plt.title('Average Like Count per Sentiment')
     buf_bar = io.BytesIO()
-    buf_bar.seek(0)
-    resp = blob.put(f"bar_{video_id}.png", buf_bar, options={"addRandomSuffix":"false", "access":"public"})
-    graphs_urls['bar_chart'] = resp.get('url')
+    plt.savefig(buf_bar, format='png', transparent=True, bbox_inches='tight')
+    plt.close()
+    bar_url = upload_to_vercel_blob(buf_bar, f"bar_{video_id}.png")
+    graphs_urls['bar_chart'] = bar_url
 
     return graphs_urls
 
@@ -167,21 +177,20 @@ def generateInsights(data):
     ---
     """
     model = genai.GenerativeModel("gemma-3n-e2b-it")
-    response = model.generate_text(prompt, generation_config=genai.types.GenerationConfig(temperature=0.2, max_output_tokens=1000))
+    response = model.generate_content(prompt, generation_config=genai.types.GenerationConfig(temperature=0.2, max_output_tokens=1000))
 
     try:
-        insights = json.loads(response.text)
+        insights = json.loads(response.text.replace("```", "")[4:])
         if 'Question' in insights:
-            return {
+            insights = {
                 "Questions": insights.get('Question', []),
                 "Suggestions": insights.get('Suggestion', [])
             }
         else:
-            return {
+            insights = {
                 "Engagement": insights.get('Engagement', []),
                 "Suggestions": insights.get('Suggestion', [])
             }
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Failed to parse insights JSON: {e}")
+        return insights
     except Exception as e:
         raise ValueError(f"Error generating insights: {e}")
