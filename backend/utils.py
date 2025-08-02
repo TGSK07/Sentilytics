@@ -140,7 +140,6 @@ def generateGraphs(data, video_id, token, store_id):
     ax_bar.bar(avg_likes['sentiment'], avg_likes['likecount'], color=colors)
     ax_bar.set_xlabel('Sentiment')
     ax_bar.set_ylabel('Average Like Count')
-    ax_bar.set_title('Average Like Count per Sentiment')
     buf_bar = io.BytesIO()
     fig_bar.savefig(buf_bar, format='png', transparent=True, bbox_inches='tight')
     plt.close(fig_bar)
