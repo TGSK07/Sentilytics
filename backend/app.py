@@ -1,11 +1,12 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+
 from utils import (
     fetch_comments,
     clean_comment,
     generateGraphs,
     predict_sentiment,
-    generateReport,
+    generateInsights,
 )
 
 from transformers import BertTokenizer, BertForSequenceClassification
@@ -50,12 +51,16 @@ def generateReportRoute(video_id):
         if data.empty:
             return jsonify({"error": "No comments found for this video."}), 404
         
+        # Clean comments and predict sentiment
         data['comment'] = data['comment'].astype(str).apply(clean_comment)
         data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
 
         sentiment_counts = data['sentiment'].value_counts().to_dict()
-        if not sentiment_counts:
-            return jsonify({"error": "No sentiments found for the comments."}), 404
+        sentiment_counts = {
+            "positive": sentiment_counts.get('positive', 0),
+            "negative": sentiment_counts.get('negative', 0),
+            "neutral": sentiment_counts.get('neutral', 0)
+        } # In case of missing sentiment, default to 0
 
         return jsonify({
             "totalComments": len(data),
@@ -65,9 +70,8 @@ def generateReportRoute(video_id):
                 "positive": data[data['sentiment'] == 'positive'].nlargest(1, 'likecount').to_dict(orient='records'),
                 "negative": data[data['sentiment'] == 'negative'].nlargest(1, 'likecount').to_dict(orient='records'),
                 "neutral": data[data['sentiment'] == 'neutral'].nlargest(1, 'likecount').to_dict(orient='records')
-            }
-            "Questions":"",
-            "suggestions":""
+            },
+            "ai_insights": generateInsights(data)
         })
     
     except Exception as e:
