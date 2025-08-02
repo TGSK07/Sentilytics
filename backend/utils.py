@@ -9,6 +9,8 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 from googleapiclient.discovery import build as GoogleAPIClientBuild
+import google.generativeai as genai
+import json
 
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
@@ -80,9 +82,7 @@ def clean_comment(comment):
 
 def generateGraphs(data, video_id):
     if data.empty:
-        return None
-    if not os.path.exists('backend/graphs'):
-        os.makedirs('backend/graphs')
+        raise ValueError("Data is empty, cannot generate graphs.")
 
     graphs_urls = {}
 
@@ -105,6 +105,7 @@ def generateGraphs(data, video_id):
     text = ' '.join(data['comment'].astype(str).tolist())
     wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
     buf_wc = io.BytesIO()
+    wordcloud.to_image().save(buf_wc, format='PNG')
     buf_wc.seek(0)
     resp = blob.put(f"word_cloud_{video_id}.png", buf_wc, options={"addRandomSuffix":"false", "access":"public"})
     graphs_urls['word_cloud'] = resp.get('url')
@@ -133,45 +134,54 @@ def predict_sentiment(comment):
 
 def generateInsights(data):
     if data.empty:
-        return None
+        raise ValueError("No comments Found, cannot generate insights.")
     
-    data['comment'] = data['comment'].astype(str).apply(clean_comment)
-    data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
-
-    sentiment_counts = data['sentiment'].value_counts().to_dict()
+    comments_text = ' '.join(data['comment'].astype(str).tolist())
+    max_length = 8000
+    if len(comments_text) > max_length:
+        comments_text = comments_text[:max_length] + '...'
     
-    if not sentiment_counts:
-        return None
-    
-    return {
-        "totalComments": len(data),
-        "sentimentCounts": sentiment_counts,
-        "graph_urls": generateGraphs(data, video_id) if not data.empty else None,
-    }
+    prompt = f"""
+    You are an assistant that analyzes user comments from a YouTube video to extract viewer engagement insights.
+    Only output information strictly present in the comments without adding any hallucinated content.
+    Analyze the following list of YouTube comments and generate insights.
+    Your output MUST be a valid JSON object. Do not include any text before or after the JSON object.
 
+    Based on the comments provided:
+    1.  Identify and extract a maximum of the top three most relevant and frequently asked questions.
+    2.  If NO questions are asked, provide a brief, one-sentence summary of the overall viewer engagement (e.g., "Viewers are highly engaged and positive, frequently praising the content's clarity.").
+    3.  Analyze all comments for suggestions or desires for future content and provide the top three video suggestions. For each suggestion, estimate the percentage of viewers who showed interest if possible, or describe the level of interest.
+    4.  Your response MUST strictly be based on the provided comments. Do not invent questions or suggestions.
 
-def generateReport(video_id):
+    **Output Format:**
+
+    If questions are found, use this JSON structure:
+      "Question": ["string", "string", "string"],
+      "Suggestion": ["string", "string", "string"]
+    If NO questions are found, use this JSON structure:
+      "Engagement": ["string", "string", "string"]
+      "Suggestion": ["string", "string", "string"]
+    Here are the comments:
+    ---
+    {comments_text}
+    ---
+    """
+    model = genai.GenerativeModel("gemma-3n-e2b-it")
+    response = model.generate_text(prompt, generation_config=genai.types.GenerationConfig(temperature=0.2, max_output_tokens=1000))
+
     try:
-        data = fetch_comments(video_id)
-        
-        if data.empty:
-            return None
-        
-        data['comment'] = data['comment'].astype(str).apply(clean_comment)
-        data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
-
-        sentiment_counts = data['sentiment'].value_counts().to_dict()
-        
-        if not sentiment_counts:
-            return None
-        
-        return jsonify({
-            "totalComments": len(data),
-            "sentimentCounts": sentiment_counts,
-            "graph_urls": generateGraphs(data, video_id) if not data.empty else None,
-
-        })
-        
+        insights = json.loads(response.text)
+        if 'Question' in insights:
+            return {
+                "Questions": insights.get('Question', []),
+                "Suggestions": insights.get('Suggestion', [])
+            }
+        else:
+            return {
+                "Engagement": insights.get('Engagement', []),
+                "Suggestions": insights.get('Suggestion', [])
+            }
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse insights JSON: {e}")
     except Exception as e:
-        print(f"Error analyzing sentiment: {e}")
-        return None
+        raise ValueError(f"Error generating insights: {e}")
