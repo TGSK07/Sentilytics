@@ -89,48 +89,51 @@ def generateGraphs(data, video_id, token, store_id):
 
     def upload_to_vercel_blob(image_buffer, filename):
         image_buffer.seek(0)
-        files = {"file": (filename, image_buffer)}
-        headers = {"Authorization": f"Bearer {token}"}
-        url = f"https://blob.vercel-storage.com/api/v1/blobs?slug={store_id}/{filename}&access=public"
-        resp = requests.post(url, headers=headers, files=files)
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/octet-stream"
+        }
+        url = f"https://blob.vercel-storage.com/api/v1/blobs/{store_id}/{filename}?access=public"
+        resp = requests.put(url, headers=headers, data=image_buffer)
         resp.raise_for_status()
         return resp.json().get("url")
 
     # ========= Pie Chart =========
     labels = data['sentiment'].value_counts().index.tolist()
     sizes = data['sentiment'].value_counts().values.tolist()
-    colors  = ['gold', 'lightcoral', 'lightskyblue']
+    colors = ['gold', 'lightcoral', 'lightskyblue']
     explode = (0.1, 0, 0)
-    plt.figure(figsize=(6, 6))
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-            autopct='%1.1f%%', shadow=True, startangle=140)
-    plt.axis('equal')
+    fig_pie, ax_pie = plt.subplots(figsize=(6, 6))
+    fig_pie.patch.set_alpha(0)  # Transparent background
+    ax_pie.set_facecolor('none')  
+    ax_pie.pie(sizes, explode=explode, labels=labels, colors=colors,
+               autopct='%1.1f%%', shadow=True, startangle=140)
+    ax_pie.axis('equal')
     buf_pie = io.BytesIO()
-    plt.savefig(buf_pie, format='png', transparent=True, bbox_inches='tight')
-    plt.close()
-    pie_url = upload_to_vercel_blob(buf_pie, f"pie_{video_id}.png")
-    graphs_urls['pie_chart'] = pie_url
+    fig_pie.savefig(buf_pie, format='png', transparent=True, bbox_inches='tight')
+    plt.close(fig_pie)
+    graphs_urls['pie_chart'] = upload_to_vercel_blob(buf_pie, f"pie_{video_id}.png")
 
     # ========= Word Cloud =========
     text = ' '.join(data['comment'].astype(str).tolist())
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+    wordcloud = WordCloud(width=800, height=400, background_color=None, mode="RGBA").generate(text)
     buf_wc = io.BytesIO()
     wordcloud.to_image().save(buf_wc, format='PNG')
-    wordcloud_url = upload_to_vercel_blob(buf_wc, f"word_cloud_{video_id}.png")
-    graphs_urls['word_cloud'] = wordcloud_url
+    graphs_urls['word_cloud'] = upload_to_vercel_blob(buf_wc, f"word_cloud_{video_id}.png")
 
     # ========= Bar Chart =========
     avg_likes = data.groupby('sentiment')['likecount'].mean().reset_index()
-    plt.figure(figsize=(10, 6))
-    plt.bar(avg_likes['sentiment'], avg_likes['likecount'], color=colors)
-    plt.xlabel('Sentiment')
-    plt.ylabel('Average Like Count')
-    plt.title('Average Like Count per Sentiment')
+    fig_bar, ax_bar = plt.subplots(figsize=(10, 6))
+    fig_bar.patch.set_alpha(0)  # Transparent background
+    ax_bar.set_facecolor('none')
+    ax_bar.bar(avg_likes['sentiment'], avg_likes['likecount'], color=colors)
+    ax_bar.set_xlabel('Sentiment')
+    ax_bar.set_ylabel('Average Like Count')
+    ax_bar.set_title('Average Like Count per Sentiment')
     buf_bar = io.BytesIO()
-    plt.savefig(buf_bar, format='png', transparent=True, bbox_inches='tight')
-    plt.close()
-    bar_url = upload_to_vercel_blob(buf_bar, f"bar_{video_id}.png")
-    graphs_urls['bar_chart'] = bar_url
+    fig_bar.savefig(buf_bar, format='png', transparent=True, bbox_inches='tight')
+    plt.close(fig_bar)
+    graphs_urls['bar_chart'] = upload_to_vercel_blob(buf_bar, f"bar_{video_id}.png")
 
     return graphs_urls
 

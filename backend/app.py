@@ -18,6 +18,8 @@ import torch
 import io
 import pandas as pd
 from wordcloud import WordCloud
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import google.generativeai as genai
 import json
@@ -60,13 +62,14 @@ def generateReportRoute(video_id):
         data['comment'] = data['comment'].astype(str).apply(clean_comment)
         data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
 
+        print("Generating graphs...")
+        graphs_urls = generateGraphs(data, video_id, VERCEL_BLOB_READ_WRITE_TOKEN, VERCEL_BLOB_STORE_ID) if not data.empty else None
+        print("Graphs generated successfully.")
+
         print("Generating insights...")
         insights = generateInsights(data)
         print("Insights generated successfully.")
 
-        print("Generating graphs...")
-        graphs_urls = generateGraphs(data, video_id, VERCEL_BLOB_READ_WRITE_TOKEN, VERCEL_BLOB_STORE_ID) if not data.empty else None
-        print("Graphs generated successfully.")
 
         sentiment_counts = data['sentiment'].value_counts().to_dict()
         sentiment_counts = {
