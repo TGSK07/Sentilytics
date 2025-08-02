@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentilytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <h1>Sentilytics Dashboard</h1>
+        <div class="sentiment-stats">
+            <div class="stat positive"><span id="positive">0%</span><br>Positive</div>
+            <div class="stat neutral"><span id="neutral">0%</span><br>Neutral</div>
+            <div class="stat negative"><span id="negative">0%</span><br>Negative</div>
+        </div>
+
+        <div class="charts">
+            <div class="chart">
+                <h2>Sentiment Distribution</h2>
+                <img id="pieChart" src="" alt="Pie Chart">
+            </div>
+            <div class="chart">
+                <h2>Most Common Words</h2>
+                <img id="wordCloud" src="" alt="Word Cloud">
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="questions">
+                <h2>Viewer Questions</h2>
+                <ul id="questionsList"></ul>
+            </div>
+            <div class="suggestions">
+                <h2>Next Video Suggestions</h2>
+                <ul id="suggestionsList"></ul>
+            </div>
+        </div>
+
+        <div class="comments">
+            <h2>Top Liked Comments</h2>
+            <div id="commentsList"></div>
+        </div>
+
+        <div class="bar-chart">
+            <h2>Top Liked Comments (Bar)</h2>
+            <img id="barChart" src="" alt="Bar Chart">
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
