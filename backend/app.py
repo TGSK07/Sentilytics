@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 
 from utils import (
@@ -53,7 +53,34 @@ genai.configure(api_key=GEMINI_API_KEY)
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
 
-@app.route('/analyze/<video_id>', methods=['GET'])
+@app.route("/analyze/<video_id>", methods=['GET'])
+def analyze_video(video_id):
+    try:
+        print(f"Fetching comments for video ID: {video_id}")
+        data = fetch_comments(video_id)
+        print(f"Fetched {len(data)} comments for video ID: {video_id}")
+        if data.empty:
+            return jsonify({"error": "No comments found for this video."}), 404
+        
+        # Clean comments and predict sentiment
+        data['comment'] = data['comment'].astype(str).apply(clean_comment)
+        data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
+
+        sentiment_counts = data['sentiment'].value_counts().to_dict()
+        sentiment_counts = {
+            "positive": sentiment_counts.get('positive', 0),
+            "negative": sentiment_counts.get('negative', 0),
+            "neutral": sentiment_counts.get('neutral', 0)
+        } # In case of missing sentiment, default to 0
+
+
+        return jsonify(sentiment_counts)
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/dashboard/<video_id>', methods=['GET'])
 def generateReportRoute(video_id):
     try:
         print(f"Fetching comments for video ID: {video_id}")
