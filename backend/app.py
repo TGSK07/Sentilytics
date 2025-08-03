@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 from utils import (
@@ -9,45 +9,9 @@ from utils import (
     generateInsights,
 )
 
-from transformers import BertTokenizer, BertForSequenceClassification
-import os
-from dotenv import load_dotenv
-from googleapiclient.discovery import build as GoogleAPIClientBuild
-from huggingface_hub import login
-import torch
-import io
-import pandas as pd
-from wordcloud import WordCloud
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import google.generativeai as genai
-import json
-import requests
-
-import warnings
-warnings.filterwarnings("ignore", message=".*encoder_attention_mask.*")
 
 
-# Load environment variables
-load_dotenv()
-api_service_name = "youtube"
-api_version = "v3"
-YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
-HG_TOKEN = os.getenv("HG_TOKEN")
-TOKEN = os.getenv("TOKEN")
-STORE_ID = os.getenv("STORE_ID")
-GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
-# Initialize the Hugging Face model and tokenizer
-login(HG_TOKEN)
-model_name = 'ganeshkharad/gk-hinglish-sentiment'
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name) 
-model.eval()
 
-
-# Configure Google Generative AI
-genai.configure(api_key=GEMINI_API_KEY)
 
 # Initialize Flask app
 app = Flask(__name__)
