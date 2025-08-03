@@ -102,7 +102,7 @@ def clean_comment(comment):
     
     return comment
 
-def generateGraphs(data, video_id, token, store_id):
+def generateGraphs(data, video_id):
     if data.empty:
         raise ValueError("Data is empty, cannot generate graphs.")
 
@@ -111,10 +111,10 @@ def generateGraphs(data, video_id, token, store_id):
     def upload_to_vercel_blob(image_buffer, filename):
         image_buffer.seek(0)
         headers = {
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {TOKEN}",
             "Content-Type": "application/octet-stream"
         }
-        url = f"https://blob.vercel-storage.com/api/v1/blobs/{store_id}/{filename}?access=public"
+        url = f"https://blob.vercel-storage.com/api/v1/blobs/{STORE_ID}/{filename}?access=public"
         resp = requests.put(url, headers=headers, data=image_buffer)
         resp.raise_for_status()
         return resp.json().get("url")

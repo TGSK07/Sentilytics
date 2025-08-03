@@ -58,7 +58,7 @@ def generateReportRoute(video_id):
         data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
 
         print("Generating graphs...")
-        graphs_urls = generateGraphs(data, video_id, TOKEN, STORE_ID) if not data.empty else None
+        graphs_urls = generateGraphs(data, video_id) if not data.empty else None
         print("Graphs generated successfully.")
 
         print("Generating insights...")
