@@ -28,7 +28,7 @@ const sentiments = [
 ];
 
 // Backend base URL
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://sentilyticsbackend-production.up.railway.app";
 
 // Function to extract YouTube video ID from URL
 function getYouTubeVideoId(url) {
@@ -129,16 +129,17 @@ startBtn.addEventListener('click', async () => {
 
         // data expected: { positive: 70, neutral: 22, negative: 8, details_url: "..." }
         setTimeout(() => {
-            setSentimentBar('positive', data.positive);
-            setSentimentBar('neutral', data.neutral);
-            setSentimentBar('negative', data.negative);
+            total = data.totalComments || 1;
+            setSentimentBar('positive', Math.round((data.positive / total) * 100));
+            setSentimentBar('neutral', Math.round((data.neutral / total) * 100));
+            setSentimentBar('negative', Math.round((data.negative / total) * 100));
         }, 200);
 
         // Activate "View Detailed Trends" link
         if (data.details_url) {
             detailsLink.href = data.details_url;
         } else {
-            detailsLink.href = "http://localhost:5000"; // fallback
+            detailsLink.href = BACKEND_URL; // fallback
         }
 
         hideLoading();
