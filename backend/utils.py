@@ -1,11 +1,6 @@
-from transformers import BertTokenizer, BertForSequenceClassification
-import torch
-from huggingface_hub import login
-
-from transformers import BertTokenizer, BertForSequenceClassification
 from dotenv import load_dotenv
 from googleapiclient.discovery import build as GoogleAPIClientBuild
-from huggingface_hub import login
+from huggingface_hub import InferenceClient
 
 import re
 import html
@@ -35,11 +30,7 @@ STORE_ID = os.getenv("STORE_ID")
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Initialize the Hugging Face model and tokenizer
-login(HG_TOKEN)
-model_name = 'ganeshkharad/gk-hinglish-sentiment'
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name) 
-model.eval()
+client = InferenceClient(model="ganeshkharad/gk-hinglish-sentiment", token=HG_TOKEN)
 
 import warnings
 warnings.filterwarnings("ignore", message=".*encoder_attention_mask.*")
@@ -81,12 +72,6 @@ def fetch_comments(video_id):
     
     except Exception as e:
         raise Exception(f"Error fetching comments: {e}")
-
-login(os.getenv("HG_TOKEN"))
-model_name = 'ganeshkharad/gk-hinglish-sentiment'
-tokenizer = BertTokenizer.from_pretrained(model_name)
-model = BertForSequenceClassification.from_pretrained(model_name) 
-model.eval()
 
 
 def clean_comment(comment):
@@ -171,12 +156,13 @@ def generateGraphs(data, video_id):
     return graphs_urls
 
 def predict_sentiment(comment):
-    inputs = tokenizer(comment, return_tensors="pt", truncation=True, max_length=512)
-    with torch.no_grad():
-        outputs = model(**inputs)
-        label = torch.argmax(outputs.logits, dim=1).item()
-    mapping = {0: "negative", 1: "neutral", 2: "positive"}
-    return mapping[label]
+    try:
+        result = client.text_classification(comment)
+        if result and len(result) > 0:
+            return result[0]['label'].lower()
+        return 'neutral'
+    except Exception as e:
+        raise ValueError(f"Error predicting sentiment: {e}")
 
 def generateInsights(data):
     if data.empty:
