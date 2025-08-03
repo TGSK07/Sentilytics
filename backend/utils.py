@@ -30,8 +30,7 @@ STORE_ID = os.getenv("STORE_ID")
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Initialize the Hugging Face model and tokenizer
-client = InferenceClient(model="ganeshkharad/gk-hinglish-sentiment", token=HG_TOKEN)
-
+client = InferenceClient(model="SamLowe/roberta-base-go_emotions", token=HG_TOKEN)
 import warnings
 warnings.filterwarnings("ignore", message=".*encoder_attention_mask.*")
 
@@ -156,13 +155,20 @@ def generateGraphs(data, video_id):
     return graphs_urls
 
 def predict_sentiment(comment):
-    try:
-        result = client.text_classification(comment)
-        if result and len(result) > 0:
-            return result[0]['label'].lower()
-        return 'neutral'
-    except Exception as e:
-        raise ValueError(f"Error predicting sentiment: {e}")
+    resp = client.text_classification(comment)
+    if not resp:
+        return "neutral"
+    label = resp[0].get("label", "").lower()
+
+    # Map emotion label to sentiment
+    positive = {"admiration", "amusement", "approval", "caring", "curiosity", "desire",
+                "excitement", "gratitude", "joy", "love", "optimism", "pride", "relief"}
+    negative = {"anger", "annoyance", "confusion", "disappointment", "disapproval", "disgust",
+                "embarrassment", "fear", "grief", "nervousness", "remorse", "sadness"}
+
+    if label in positive: return "positive"
+    if label in negative: return "negative"
+    return "neutral"
 
 def generateInsights(data):
     if data.empty:

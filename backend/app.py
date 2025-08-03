@@ -38,6 +38,7 @@ def analyze_video(video_id):
 
         sentiment_counts = data['sentiment'].value_counts().to_dict()
         sentiment_counts = {
+            "total": len(data),
             "positive": sentiment_counts.get('positive', 0),
             "negative": sentiment_counts.get('negative', 0),
             "neutral": sentiment_counts.get('neutral', 0)
