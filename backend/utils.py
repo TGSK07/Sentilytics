@@ -17,6 +17,8 @@ from googleapiclient.discovery import build as GoogleAPIClientBuild
 import google.generativeai as genai
 import json
 
+import matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend for matplotlib   
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import io 
