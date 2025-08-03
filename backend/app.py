@@ -17,6 +17,12 @@ from utils import (
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
 
+
+@app.route("/", methods=['GET'])
+def home(): 
+    return jsonify({"message": "Welcome to the Sentilytics API!"})
+
+
 @app.route("/analyze/<video_id>", methods=['GET'])
 def analyze_video(video_id):
     try:
