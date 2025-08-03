@@ -35,8 +35,8 @@ api_service_name = "youtube"
 api_version = "v3"
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 HG_TOKEN = os.getenv("HG_TOKEN")
-VERCEL_BLOB_READ_WRITE_TOKEN = os.getenv("VERCEL_BLOB_READ_WRITE_TOKEN")
-VERCEL_BLOB_STORE_ID = os.getenv("VERCEL_BLOB_STORE_ID")
+TOKEN = os.getenv("TOKEN")
+STORE_ID = os.getenv("STORE_ID")
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 # Initialize the Hugging Face model and tokenizer
 login(HG_TOKEN)
@@ -94,7 +94,7 @@ def generateReportRoute(video_id):
         data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
 
         print("Generating graphs...")
-        graphs_urls = generateGraphs(data, video_id, VERCEL_BLOB_READ_WRITE_TOKEN, VERCEL_BLOB_STORE_ID) if not data.empty else None
+        graphs_urls = generateGraphs(data, video_id, TOKEN, STORE_ID) if not data.empty else None
         print("Graphs generated successfully.")
 
         print("Generating insights...")
