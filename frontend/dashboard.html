@@ -7,46 +7,95 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>Sentilytics</h1>
+    </div>
+
+    <!-- Dashboard Container -->
     <div class="dashboard">
-        <h1>Sentilytics Dashboard</h1>
-        <div class="sentiment-stats">
-            <div class="stat positive"><span id="positive">0%</span><br>Positive</div>
-            <div class="stat neutral"><span id="neutral">0%</span><br>Neutral</div>
-            <div class="stat negative"><span id="negative">0%</span><br>Negative</div>
+
+        <!-- Left Column -->
+        <div>
+            <!-- Total Comments and Top Liked Comment -->
+            <div class="grid-two">
+                <div class="card">
+                    <h3>Total Comments</h3>
+                    <p class="big-number">50</p>
+                    <hr>
+                    <h4>👍 Top Liked Comment</h4>
+                    <p>Lorem Ipsum is simply dummy text of the printing industry.</p>
+                    <p class="likes-text">Likes: 10</p>
+                </div>
+
+                <div class="card counts-card">
+                    <h3>Counts & Sentiment Distribution</h3>
+                    <div class="counts-section">
+                        <div class="counts">
+                            <div class="count-item">
+                                <p class="positive">▲</p>
+                                <span>25 Positive</span>
+                            </div>
+                            <div class="count-item">
+                                <p class="negative">▼</p>
+                                <span>10 Negative</span>
+                            </div>
+                            <div class="count-item">
+                                <p class="neutral">▬</p>
+                                <span>15 Neutral</span>
+                            </div>
+                        </div>
+                        <div class="chart small-chart" id="pie-chart">[Pie Chart]</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Liked Comment Sentiment-wise -->
+            <div class="card">
+                <h3>Top Liked Comment (Sentiment-wise)</h3>
+                <div class="sentiment-comments">
+                    <div><span class="positive">P</span> Lorem Ipsum dummy text <span>20</span></div>
+                    <div><span class="negative">N</span> Lorem Ipsum dummy text <span>15</span></div>
+                    <div><span class="neutral">N</span> Lorem Ipsum dummy text <span>5</span></div>
+                </div>
+            </div>
+
+            <!-- Audience Demand -->
+            <div class="card list-section">
+                <h3>Audience Demand</h3>
+                <ul>
+                    <li>Lorem Ipsum dummy text of the printing industry.</li>
+                    <li>Lorem Ipsum dummy text of the printing industry.</li>
+                    <li>Lorem Ipsum dummy text of the printing industry.</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="charts">
-            <div class="chart">
-                <h2>Sentiment Distribution</h2>
-                <img id="pieChart" src="" alt="Pie Chart">
+        <!-- Right Column -->
+        <div>
+            <!-- Average Liked Distribution -->
+            <div class="card">
+                <h3>Average Liked Distribution</h3>
+                <div class="chart" id="bar-chart">[Bar Chart]</div>
             </div>
-            <div class="chart">
-                <h2>Most Common Words</h2>
-                <img id="wordCloud" src="" alt="Word Cloud">
-            </div>
-        </div>
-        
-        <div class="bar-chart">
-            <h2>Top Liked Comments (Bar)</h2>
-            <img id="barChart" src="" alt="Bar Chart">
-        </div>
 
-        <div class="content">
-            <div class="questions">
-                <h2>Viewer Questions</h2>
-                <ul id="questionsList"></ul>
+            <!-- Most Frequently Mention Words -->
+            <div class="card">
+                <h3>Most Frequently Mention Words</h3>
+                <div class="chart" id="word-cloud">[Word Cloud]</div>
             </div>
-            <div class="suggestions">
-                <h2>Next Video Suggestions</h2>
-                <ul id="suggestionsList"></ul>
-            </div>
-        </div>
 
-        <div class="comments">
-            <h2>Top Liked Comments</h2>
-            <div id="commentsList"></div>
+            <!-- Questions Asked -->
+            <div class="card list-section">
+                <h3>Questions Asked</h3>
+                <ul>
+                    <li>Lorem Ipsum dummy text of the printing industry.</li>
+                    <li>Lorem Ipsum dummy text of the printing industry.</li>
+                    <li>Lorem Ipsum dummy text of the printing industry.</li>
+                </ul>
+            </div>
         </div>
     </div>
-    <script src="script.js"></script>
 </body>
 </html>
