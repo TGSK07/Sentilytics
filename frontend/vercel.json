@@ -3,14 +3,14 @@
   "public": true,
   "builds": [
     {
-      "src": "dashboard.html",
+      "src": "home.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/dashboard.html"
+      "dest": "/home.html"
     }
   ]
 }
