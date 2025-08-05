@@ -68,7 +68,7 @@
     <!-- Main Dashboard Content -->
     <main class="container mx-auto p-6">
         <div class="mb-6">
-            <h2 class="text-2xl font-bold text-white">Video Title: <span id="video-title"
+            <h2 class="text-2xl font-bold text-white">Analysis for Video ID: <span id="video-id"
                     class="font-normal">Loading...</span></h2>
             <p class="text-slate-400">Analysis based on the latest comments.</p>
         </div>
@@ -117,7 +117,7 @@
                     <div id="sentiment-pie-chart" class="chart-placeholder">
                         <img id="sentiment-pie-chart-img" src="" alt="Sentiment Distribution Pie Chart"
                             class="w-full h-auto rounded-lg hidden">
-                        <span>Loading Chart...</span>
+                        <span class="placeholder-text">Loading Chart...</span>
                     </div>
                 </div>
                 <!-- Average Liked Distribution -->
@@ -126,7 +126,7 @@
                     <div id="likes-bar-chart" class="chart-placeholder">
                         <img id="likes-bar-chart-img" src="" alt="Average Likes Bar Chart"
                             class="w-full h-auto rounded-lg hidden">
-                        <span>Loading Chart...</span>
+                        <span class="placeholder-text">Loading Chart...</span>
                     </div>
                 </div>
             </div>
@@ -139,7 +139,7 @@
                     <div id="word-cloud" class="flex-grow w-full h-full chart-placeholder">
                         <img id="word-cloud-img" src="" alt="Most Mentioned Words Cloud"
                             class="w-full h-full object-contain rounded-lg hidden">
-                        <span>Loading Word Cloud...</span>
+                        <span class="placeholder-text">Loading Word Cloud...</span>
                     </div>
                 </div>
                 <!-- Questions -->
@@ -183,47 +183,14 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- MOCK API DATA (Replace with actual fetch call) ---
-            const mockApiData = {
-                videoTitle: "Why This Is The Best Framework of 2024",
-                totalComments: 1245,
-                sentimentCounts: { "positive": 850, "negative": 250, "neutral": 145 },
-                graph_urls: {
-                    "sentiment_pie_chart": "https://placehold.co/400x300/1E293B/A78BFA?text=Sentiment+Pie+Chart",
-                    "likes_bar_chart": "https://placehold.co/400x300/1E293B/60A5FA?text=Likes+Bar+Chart",
-                    "word_cloud": "https://placehold.co/600x400/1E293B/FFFFFF?text=Word+Cloud+Image"
-                },
-                top_liked_comments: {
-                    "top_liked_comment": [{ "text": "This is hands down the best explanation I've ever seen on this topic. Absolutely brilliant! 🔥", "likecount": 1200 }],
-                    "positive": [{ "text": "Incredible content, as always. You've earned a lifelong subscriber!", "likecount": 850 }],
-                    "negative": [{ "text": "The audio quality is a bit low in this one, it was hard to hear at times.", "likecount": 45 }],
-                    "neutral": [{ "text": "Interesting perspective. I'll have to think more about this point.", "likecount": 110 }]
-                },
-                insight: {
-                    "Questions": [
-                        "Can you make a video about advanced topic X?",
-                        "What software are you using for the edits?",
-                        "Where can I find the source code for this project?"
-                    ],
-                    "Suggestions": [
-                        "You should try collaborating with Creator Y.",
-                        "A dark mode for the app would be amazing.",
-                        "Could you add timestamps for key moments?"
-                    ]
-                }
-            };
-
+        document.addEventListener('DOMContentLoaded', async function () {
             // --- Function to update the dashboard with data ---
             function updateDashboard(data) {
-                // Update video title
-                document.getElementById('video-title').textContent = data.videoTitle || 'N/A';
-
                 // Update summary cards
-                document.getElementById('total-comments').textContent = data.totalComments;
-                document.getElementById('positive-comments').textContent = data.sentimentCounts.positive;
-                document.getElementById('negative-comments').textContent = data.sentimentCounts.negative;
-                document.getElementById('neutral-comments').textContent = data.sentimentCounts.neutral;
+                document.getElementById('total-comments').textContent = data.totalComments.toLocaleString();
+                document.getElementById('positive-comments').textContent = data.sentimentCounts.positive.toLocaleString();
+                document.getElementById('negative-comments').textContent = data.sentimentCounts.negative.toLocaleString();
+                document.getElementById('neutral-comments').textContent = data.sentimentCounts.neutral.toLocaleString();
 
                 // Update chart images
                 updateImage('sentiment-pie-chart', data.graph_urls.sentiment_pie_chart);
@@ -245,22 +212,25 @@
             function updateImage(containerId, src) {
                 const container = document.getElementById(containerId);
                 const img = container.querySelector('img');
-                const placeholder = container.querySelector('span');
+                const placeholder = container.querySelector('.placeholder-text');
                 if (src) {
                     img.src = src;
                     img.onload = () => {
                         img.classList.remove('hidden');
-                        placeholder.classList.add('hidden');
+                        if (placeholder) placeholder.classList.add('hidden');
                     };
+                    img.onerror = () => {
+                        if (placeholder) placeholder.textContent = "Chart could not be loaded.";
+                    }
                 } else {
-                    placeholder.textContent = "Chart not available";
+                    if (placeholder) placeholder.textContent = "Chart not available.";
                 }
             }
 
             function updateComment(baseId, commentData) {
                 const textEl = document.getElementById(`${baseId}-text`);
                 const likesEl = document.getElementById(`${baseId}-likes`);
-                if (commentData) {
+                if (commentData && commentData.text) {
                     textEl.textContent = commentData.text;
                     likesEl.textContent = `👍 ${commentData.likecount.toLocaleString()} Likes`;
                 } else {
@@ -283,39 +253,43 @@
                 }
             }
 
-            // --- Simulate fetching data ---
-            // In a real application, you would fetch from your backend API like this:
-            /*
-            const urlParams = new URLSearchParams(window.location.search);
-            const videoUrl = urlParams.get('video_url'); // Assuming the URL is passed as a query parameter
-
-            if (videoUrl) {
-                fetch(`/api/analyze?url=${encodeURIComponent(videoUrl)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        updateDashboard(data);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching analysis data:', error);
-                        document.getElementById('video-title').textContent = "Failed to load analysis.";
+            function showErrorMessage(message) {
+                document.getElementById('video-id').textContent = message;
+                // Optionally hide or show error states in other dashboard cards
+                document.querySelectorAll('.dashboard-card').forEach(card => {
+                    const placeholders = card.querySelectorAll('.placeholder-text, p, div[id$="-likes"], span[id$="-comments"]');
+                    placeholders.forEach(el => {
+                        if (el.id.includes('comment')) el.textContent = 'Error';
                     });
-            } else {
-                document.getElementById('video-title').textContent = "No video URL provided.";
+                });
             }
-            */
 
-            // For demonstration, we'll use the mock data after a short delay
-            setTimeout(() => {
-                updateDashboard(mockApiData);
-            }, 1000); // 1-second delay to simulate loading
+            // --- Fetch data from the live API ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoId = urlParams.get('video_id');
+
+            if (videoId) {
+                document.getElementById('video-id').textContent = videoId;
+                const apiUrl = `https://sentilyticsbackend-production.up.railway.app/dashboard/${videoId}`;
+
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+                    const data = await response.json();
+                    updateDashboard(data);
+
+                } catch (error) {
+                    console.error('Error fetching analysis data:', error);
+                    showErrorMessage("Failed to load analysis. Check the Video ID or try again.");
+                }
+
+            } else {
+                showErrorMessage("No Video ID provided in the URL.");
+            }
         });
     </script>
-    
 </body>
 
 </html>
