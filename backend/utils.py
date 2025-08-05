@@ -53,21 +53,27 @@ def fetch_comments(video_id):
                 )
             
             response = request.execute()
+            
+            if response["items"]:
+                video_title = response["items"][0]["snippet"]["title"] 
 
-            for item in response['items']:
+            for item in response.get("items",[]):
                 comment = item['snippet']['topLevelComment']['snippet']
-                comments.append([
-                    comment['likeCount'],
-                    comment['textDisplay']
-                ])
+                
+                is_owner = comment.get("authorChannelId",{}).get("values") == item["snippet"].get("videoOwnerChannelId")
 
+                if not is_owner:
+                    comments.append([
+                        comment['likeCount'],
+                        comment['textDisplay']
+                    ])
             next_page_token = response.get('nextPageToken')
             if not next_page_token:
                 break
 
         df = pd.DataFrame(comments,columns=['likecount','comment'])
 
-        return df
+        return df, video_title
     
     except Exception as e:
         raise Exception(f"Error fetching comments: {e}")
