@@ -176,7 +176,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             function updateDashboard(data, videoId) {
-                document.getElementById('video-id').textContent = videoId;
+                document.getElementById('video-id').textContent = data.video_title.toLocaleString();
                 
                 // Update summary cards
                 document.getElementById('total-comments').textContent = data.totalComments.toLocaleString();
