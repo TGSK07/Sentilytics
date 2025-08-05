@@ -1,16 +1,29 @@
 {
-  "name": "Sentilytics",
+  "version": 2,
+  "name": "sentilytics-frontend",
   "public": true,
   "builds": [
     {
-      "src": "home.html",
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/",
       "dest": "/home.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/dashboard.html"
     }
   ]
 }
