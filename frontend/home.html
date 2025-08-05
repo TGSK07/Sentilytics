@@ -34,6 +34,10 @@
             box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
             transform: translateY(-2px);
         }
+        .cta-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
         .feature-card {
             background-color: #1E293B; /* slate-800 */
             border: 1px solid #334155; /* slate-700 */
@@ -87,11 +91,11 @@
                             placeholder="Paste YouTube video URL here..."
                             class="w-full bg-transparent text-white placeholder-slate-500 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow"
                         >
-                        <button type="submit" class="cta-button text-white font-bold py-3 px-8 rounded-lg w-full sm:w-auto flex-shrink-0">
+                        <button type="submit" id="analyze-button" class="cta-button text-white font-bold py-3 px-8 rounded-lg w-full sm:w-auto flex-shrink-0">
                             Analyze
                         </button>
                     </div>
-                    <p id="url-error" class="text-red-400 mt-2 text-sm hidden">Please enter a valid YouTube video URL.</p>
+                    <p id="url-error" class="text-red-400 mt-2 text-sm hidden">Please enter a valid YouTube video URL or check the ID.</p>
                 </form>
 
                 <a href="#" class="cta-button text-white font-bold py-3 px-6 rounded-lg text-lg shadow-xl inline-block">
@@ -201,24 +205,50 @@
     </footer>
 
     <script>
-        document.getElementById('analyze-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the form from submitting normally
+        document.getElementById('analyze-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
             
             const urlInput = document.getElementById('youtube-url');
             const errorEl = document.getElementById('url-error');
+            const button = document.getElementById('analyze-button');
             const url = urlInput.value;
             
-            // Regex to find the YouTube video ID from various URL formats
             const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
             const match = url.match(regex);
             
             if (match && match[1]) {
                 const videoId = match[1];
                 errorEl.classList.add('hidden');
-                // Redirect to the dashboard page with the video ID
-                window.location.href = `dashboard.html?video_id=${videoId}`;
+                button.disabled = true;
+                button.textContent = 'Analyzing...';
+
+                try {
+                    const apiUrl = `https://sentilyticsbackend-production.up.railway.app/dashboard/${videoId}`;
+                    const response = await fetch(apiUrl);
+
+                    if (!response.ok) {
+                        throw new Error(`API returned status ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Store the videoId and the data in session storage
+                    sessionStorage.setItem('analysisData', JSON.stringify(data));
+                    sessionStorage.setItem('videoId', videoId);
+
+                    // Redirect to the dashboard
+                    window.location.href = `dashboard.html`;
+
+                } catch (error) {
+                    console.error('API call failed:', error);
+                    errorEl.textContent = 'Failed to analyze video. Please check the URL and try again.';
+                    errorEl.classList.remove('hidden');
+                    button.disabled = false;
+                    button.textContent = 'Analyze';
+                }
+
             } else {
-                // Show an error message if the URL is not a valid YouTube URL
+                errorEl.textContent = 'Please enter a valid YouTube video URL.';
                 errorEl.classList.remove('hidden');
             }
         });
