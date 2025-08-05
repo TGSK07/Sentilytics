@@ -1,101 +1,306 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentilytics Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Analysis Dashboard - Sentilytics</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* slate-900 */
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #60A5FA, #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .dashboard-card {
+            background-color: #1E293B; /* slate-800 */
+            border: 1px solid #334155; /* slate-700 */
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: #475569;
+        }
+    </style>
 </head>
-<body>
+<body class="text-slate-300 antialiased">
 
-    <!-- Navbar -->
-    <div class="navbar">
-        <h1>Sentilytics</h1>
-    </div>
+    <!-- Header -->
+    <header class="sticky top-0 w-full bg-slate-900/80 backdrop-blur-sm z-50 border-b border-slate-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-white">
+                Senti<span class="gradient-text">lytics</span>
+            </a>
+            <div class="text-white font-semibold">
+                Analysis Dashboard
+            </div>
+        </div>
+    </header>
 
-    <!-- Dashboard Container -->
-    <div class="dashboard">
+    <!-- Main Dashboard Content -->
+    <main class="container mx-auto p-6">
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-white">Video Title: <span id="video-title" class="font-normal">Loading...</span></h2>
+            <p class="text-slate-400">Analysis based on the latest comments.</p>
+        </div>
 
-        <!-- Left Column -->
-        <div>
-            <!-- Total Comments and Top Liked Comment -->
-            <div class="grid-two">
-                <div class="card">
-                    <h3>Total Comments</h3>
-                    <p class="big-number">50</p>
-                    <hr>
-                    <h4>👍 Top Liked Comment</h4>
-                    <p>Lorem Ipsum is simply dummy text of the printing industry.</p>
-                    <p class="likes-text">Likes: 10</p>
+        <!-- Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            
+            <!-- Column 1: Summary & Top Comments -->
+            <div class="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
+                <!-- Summary Cards -->
+                <div class="dashboard-card">
+                    <h3 class="font-bold text-lg text-white mb-4">Overall Summary</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-slate-700/50 rounded-lg">
+                            <span class="font-medium">Total Comments</span>
+                            <span id="total-comments" class="font-bold text-xl text-white">...</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-500/10 rounded-lg">
+                            <span class="font-medium text-green-400">Positive</span>
+                            <span id="positive-comments" class="font-bold text-xl text-green-400">...</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-red-500/10 rounded-lg">
+                            <span class="font-medium text-red-400">Negative</span>
+                            <span id="negative-comments" class="font-bold text-xl text-red-400">...</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-sky-500/10 rounded-lg">
+                            <span class="font-medium text-sky-400">Neutral</span>
+                            <span id="neutral-comments" class="font-bold text-xl text-sky-400">...</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card counts-card">
-                    <h3>Counts & Sentiment Distribution</h3>
-                    <div class="counts-section">
-                        <div class="counts">
-                            <div class="count-item">
-                                <p class="positive">▲</p>
-                                <span>25 Positive</span>
-                            </div>
-                            <div class="count-item">
-                                <p class="negative">▼</p>
-                                <span>10 Negative</span>
-                            </div>
-                            <div class="count-item">
-                                <p class="neutral">▬</p>
-                                <span>15 Neutral</span>
-                            </div>
-                        </div>
-                        <div class="chart small-chart" id="pie-chart">[Pie Chart]</div>
+                <!-- Top Liked Comment -->
+                <div class="dashboard-card">
+                    <h3 class="font-bold text-lg text-white mb-4">Top Liked Comment</h3>
+                    <p id="top-liked-comment-text" class="text-slate-400 mb-2">Loading...</p>
+                    <div id="top-liked-comment-likes" class="text-right font-bold text-blue-400">...</div>
+                </div>
+            </div>
+
+            <!-- Column 2: Charts -->
+            <div class="lg:col-span-2 xl:col-span-2 flex flex-col gap-6">
+                <!-- Sentiment Distribution -->
+                <div class="dashboard-card">
+                    <h3 class="font-bold text-lg text-white mb-4">Sentiment Distribution</h3>
+                    <div id="sentiment-pie-chart" class="chart-placeholder">
+                        <img id="sentiment-pie-chart-img" src="" alt="Sentiment Distribution Pie Chart" class="w-full h-auto rounded-lg hidden">
+                        <span>Loading Chart...</span>
+                    </div>
+                </div>
+                <!-- Average Liked Distribution -->
+                <div class="dashboard-card">
+                    <h3 class="font-bold text-lg text-white mb-4">Average Likes by Sentiment</h3>
+                    <div id="likes-bar-chart" class="chart-placeholder">
+                        <img id="likes-bar-chart-img" src="" alt="Average Likes Bar Chart" class="w-full h-auto rounded-lg hidden">
+                        <span>Loading Chart...</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Top Liked Comment Sentiment-wise -->
-            <div class="card">
-                <h3>Top Liked Comment (Sentiment-wise)</h3>
-                <div class="sentiment-comments">
-                    <div><span class="positive">P</span> Lorem Ipsum dummy text <span>20</span></div>
-                    <div><span class="negative">N</span> Lorem Ipsum dummy text <span>15</span></div>
-                    <div><span class="neutral">N</span> Lorem Ipsum dummy text <span>5</span></div>
+            <!-- Column 3: Word Cloud & Lists -->
+            <div class="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
+                 <!-- Word Cloud -->
+                <div class="dashboard-card h-80 flex flex-col">
+                    <h3 class="font-bold text-lg text-white mb-4">Most Mentioned Words</h3>
+                    <div id="word-cloud" class="flex-grow w-full h-full chart-placeholder">
+                        <img id="word-cloud-img" src="" alt="Most Mentioned Words Cloud" class="w-full h-full object-contain rounded-lg hidden">
+                        <span>Loading Word Cloud...</span>
+                    </div>
+                </div>
+                <!-- Questions -->
+                <div class="dashboard-card">
+                    <h3 class="font-bold text-lg text-white mb-4">Common Questions</h3>
+                    <ul id="questions-list" class="list-disc list-inside space-y-2 text-slate-400">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+                <!-- Suggestions -->
+                <div class="dashboard-card">
+                    <h3 class="font-bold text-lg text-white mb-4">Top Suggestions</h3>
+                    <ul id="suggestions-list" class="list-disc list-inside space-y-2 text-slate-400">
+                        <li>Loading...</li>
+                    </ul>
                 </div>
             </div>
 
-            <!-- Audience Demand -->
-            <div class="card list-section">
-                <h3>Audience Demand</h3>
-                <ul>
-                    <li>Lorem Ipsum dummy text of the printing industry.</li>
-                    <li>Lorem Ipsum dummy text of the printing industry.</li>
-                    <li>Lorem Ipsum dummy text of the printing industry.</li>
-                </ul>
+            <!-- Row 2: Top Comments by Sentiment -->
+            <div class="lg:col-span-3 xl:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Top Positive Comment -->
+                <div class="dashboard-card bg-green-900/20 border-green-700/50">
+                    <h3 class="font-bold text-lg text-green-300 mb-4">Top Positive Comment</h3>
+                    <p id="top-positive-comment-text" class="text-slate-400 mb-2">Loading...</p>
+                    <div id="top-positive-comment-likes" class="text-right font-bold text-green-400">...</div>
+                </div>
+                <!-- Top Negative Comment -->
+                <div class="dashboard-card bg-red-900/20 border-red-700/50">
+                    <h3 class="font-bold text-lg text-red-300 mb-4">Top Negative Comment</h3>
+                    <p id="top-negative-comment-text" class="text-slate-400 mb-2">Loading...</p>
+                    <div id="top-negative-comment-likes" class="text-right font-bold text-red-400">...</div>
+                </div>
+                <!-- Top Neutral Comment -->
+                <div class="dashboard-card bg-sky-900/20 border-sky-700/50">
+                    <h3 class="font-bold text-lg text-sky-300 mb-4">Top Neutral Comment</h3>
+                    <p id="top-neutral-comment-text" class="text-slate-400 mb-2">Loading...</p>
+                    <div id="top-neutral-comment-likes" class="text-right font-bold text-sky-400">...</div>
+                </div>
             </div>
         </div>
+    </main>
 
-        <!-- Right Column -->
-        <div>
-            <!-- Average Liked Distribution -->
-            <div class="card">
-                <h3>Average Liked Distribution</h3>
-                <div class="chart" id="bar-chart">[Bar Chart]</div>
-            </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- MOCK API DATA (Replace with actual fetch call) ---
+            const mockApiData = {
+                videoTitle: "Why This Is The Best Framework of 2024",
+                totalComments: 1245,
+                sentimentCounts: { "positive": 850, "negative": 250, "neutral": 145 },
+                graph_urls: {
+                    "sentiment_pie_chart": "https://placehold.co/400x300/1E293B/A78BFA?text=Sentiment+Pie+Chart",
+                    "likes_bar_chart": "https://placehold.co/400x300/1E293B/60A5FA?text=Likes+Bar+Chart",
+                    "word_cloud": "https://placehold.co/600x400/1E293B/FFFFFF?text=Word+Cloud+Image"
+                },
+                top_liked_comments: {
+                    "top_liked_comment": [{ "text": "This is hands down the best explanation I've ever seen on this topic. Absolutely brilliant! 🔥", "likecount": 1200 }],
+                    "positive": [{ "text": "Incredible content, as always. You've earned a lifelong subscriber!", "likecount": 850 }],
+                    "negative": [{ "text": "The audio quality is a bit low in this one, it was hard to hear at times.", "likecount": 45 }],
+                    "neutral": [{ "text": "Interesting perspective. I'll have to think more about this point.", "likecount": 110 }]
+                },
+                insight: {
+                    "Questions": [
+                        "Can you make a video about advanced topic X?",
+                        "What software are you using for the edits?",
+                        "Where can I find the source code for this project?"
+                    ],
+                    "Suggestions": [
+                        "You should try collaborating with Creator Y.",
+                        "A dark mode for the app would be amazing.",
+                        "Could you add timestamps for key moments?"
+                    ]
+                }
+            };
 
-            <!-- Most Frequently Mention Words -->
-            <div class="card">
-                <h3>Most Frequently Mention Words</h3>
-                <div class="chart" id="word-cloud">[Word Cloud]</div>
-            </div>
+            // --- Function to update the dashboard with data ---
+            function updateDashboard(data) {
+                // Update video title
+                document.getElementById('video-title').textContent = data.videoTitle || 'N/A';
 
-            <!-- Questions Asked -->
-            <div class="card list-section">
-                <h3>Questions Asked</h3>
-                <ul>
-                    <li>Lorem Ipsum dummy text of the printing industry.</li>
-                    <li>Lorem Ipsum dummy text of the printing industry.</li>
-                    <li>Lorem Ipsum dummy text of the printing industry.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+                // Update summary cards
+                document.getElementById('total-comments').textContent = data.totalComments;
+                document.getElementById('positive-comments').textContent = data.sentimentCounts.positive;
+                document.getElementById('negative-comments').textContent = data.sentimentCounts.negative;
+                document.getElementById('neutral-comments').textContent = data.sentimentCounts.neutral;
+
+                // Update chart images
+                updateImage('sentiment-pie-chart', data.graph_urls.sentiment_pie_chart);
+                updateImage('likes-bar-chart', data.graph_urls.likes_bar_chart);
+                updateImage('word-cloud', data.graph_urls.word_cloud);
+
+                // Update top comments
+                updateComment('top-liked-comment', data.top_liked_comments.top_liked_comment[0]);
+                updateComment('top-positive-comment', data.top_liked_comments.positive[0]);
+                updateComment('top-negative-comment', data.top_liked_comments.negative[0]);
+                updateComment('top-neutral-comment', data.top_liked_comments.neutral[0]);
+
+                // Update insight lists
+                updateList('questions-list', data.insight.Questions);
+                updateList('suggestions-list', data.insight.Suggestions);
+            }
+
+            // --- Helper functions ---
+            function updateImage(containerId, src) {
+                const container = document.getElementById(containerId);
+                const img = container.querySelector('img');
+                const placeholder = container.querySelector('span');
+                if (src) {
+                    img.src = src;
+                    img.onload = () => {
+                        img.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    };
+                } else {
+                    placeholder.textContent = "Chart not available";
+                }
+            }
+
+            function updateComment(baseId, commentData) {
+                const textEl = document.getElementById(`${baseId}-text`);
+                const likesEl = document.getElementById(`${baseId}-likes`);
+                if (commentData) {
+                    textEl.textContent = commentData.text;
+                    likesEl.textContent = `👍 ${commentData.likecount.toLocaleString()} Likes`;
+                } else {
+                    textEl.textContent = "No comment found for this category.";
+                    likesEl.textContent = "";
+                }
+            }
+
+            function updateList(listId, items) {
+                const listEl = document.getElementById(listId);
+                listEl.innerHTML = ''; // Clear loading/old items
+                if (items && items.length > 0) {
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        listEl.appendChild(li);
+                    });
+                } else {
+                    listEl.innerHTML = '<li>No items found.</li>';
+                }
+            }
+
+            // --- Simulate fetching data ---
+            // In a real application, you would fetch from your backend API like this:
+            /*
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoUrl = urlParams.get('video_url'); // Assuming the URL is passed as a query parameter
+
+            if (videoUrl) {
+                fetch(`/api/analyze?url=${encodeURIComponent(videoUrl)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        updateDashboard(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching analysis data:', error);
+                        document.getElementById('video-title').textContent = "Failed to load analysis.";
+                    });
+            } else {
+                document.getElementById('video-title').textContent = "No video URL provided.";
+            }
+            */
+
+            // For demonstration, we'll use the mock data after a short delay
+            setTimeout(() => {
+                updateDashboard(mockApiData);
+            }, 1000); // 1-second delay to simulate loading
+        });
+    </script>
 </body>
 </html>
