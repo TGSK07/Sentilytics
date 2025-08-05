@@ -10,9 +10,6 @@ from utils import (
 )
 
 
-
-
-
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
@@ -27,7 +24,7 @@ def home():
 def analyze_video(video_id):
     try:
         print(f"Fetching comments for video ID: {video_id}")
-        data = fetch_comments(video_id)
+        data, video_title = fetch_comments(video_id)
         print(f"Fetched {len(data)} comments for video ID: {video_id}")
         if data.empty:
             return jsonify({"error": "No comments found for this video."}), 404
@@ -39,6 +36,7 @@ def analyze_video(video_id):
         sentiment_counts = data['sentiment'].value_counts().to_dict()
         sentiment_counts = {
             "total": len(data),
+            "video_title":video_title,
             "positive": sentiment_counts.get('positive', 0),
             "negative": sentiment_counts.get('negative', 0),
             "neutral": sentiment_counts.get('neutral', 0)
