@@ -1,54 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentilytics - YouTube Comment Sentiment Analysis</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Custom Styles -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0F172A; /* slate-900 */
-        }
-        .gradient-text {
-            background: linear-gradient(to right, #60A5FA, #A78BFA);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-fill-color: transparent;
-        }
-        .cta-button {
-            background: linear-gradient(to right, #3B82F6, #8B5CF6);
-            transition: all 0.3s ease-in-out;
-        }
-        .cta-button:hover {
-            box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
-            transform: translateY(-2px);
-        }
-        .cta-button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        .feature-card {
-            background-color: #1E293B; /* slate-800 */
-            border: 1px solid #334155; /* slate-700 */
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: #60A5FA; /* blue-400 */
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body class="text-slate-300 antialiased">
 
     <!-- Header -->
@@ -79,23 +48,23 @@
                     <span class="gradient-text">Instantly.</span>
                 </h2>
                 <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8">
-                    Paste a YouTube video link below to analyze comment sentiment, or add our extension to get insights directly on YouTube.
+                    Paste a YouTube video link below to analyze comment sentiment, or add our extension to get insights
+                    directly on YouTube.
                 </p>
-                
+
                 <!-- Search Bar Form -->
                 <form id="analyze-form" class="max-w-2xl mx-auto mt-8 mb-12">
-                    <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-800/50 border border-slate-700 rounded-xl p-2 shadow-lg">
-                        <input 
-                            type="text" 
-                            id="youtube-url"
-                            placeholder="Paste YouTube video URL here..."
-                            class="w-full bg-transparent text-white placeholder-slate-500 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow"
-                        >
-                        <button type="submit" id="analyze-button" class="cta-button text-white font-bold py-3 px-8 rounded-lg w-full sm:w-auto flex-shrink-0">
+                    <div
+                        class="flex flex-col sm:flex-row items-center gap-4 bg-slate-800/50 border border-slate-700 rounded-xl p-2 shadow-lg">
+                        <input type="text" id="youtube-url" placeholder="Paste YouTube video URL here..."
+                            class="w-full bg-transparent text-white placeholder-slate-500 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow">
+                        <button type="submit" id="analyze-button"
+                            class="cta-button text-white font-bold py-3 px-8 rounded-lg w-full sm:w-auto flex-shrink-0">
                             Analyze
                         </button>
                     </div>
-                    <p id="url-error" class="text-red-400 mt-2 text-sm hidden">Please enter a valid YouTube video URL or check the ID.</p>
+                    <p id="url-error" class="text-red-400 mt-2 text-sm hidden">Please enter a valid YouTube video URL or
+                        check the ID.</p>
                 </form>
 
                 <a href="#" class="cta-button text-white font-bold py-3 px-6 rounded-lg text-lg shadow-xl inline-block">
@@ -108,41 +77,52 @@
         <section id="features" class="py-20 bg-slate-900/50">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h3 class="text-3xl md:text-4xl font-bold text-white">Why You'll Love <span class="gradient-text">Sentilytics</span></h3>
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">Why You'll Love <span
+                            class="gradient-text">Sentilytics</span></h3>
                     <p class="text-slate-400 mt-2">Unlock deeper insights from video feedback.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Feature 1 -->
                     <div class="feature-card p-8 rounded-xl">
-                        <div class="bg-blue-500/10 text-blue-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <div
+                            class="bg-blue-500/10 text-blue-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
                         <h4 class="text-xl font-bold text-white mb-2">Real-Time Analysis</h4>
-                        <p class="text-slate-400">Get immediate sentiment scores for comments as you browse, without any delay.</p>
+                        <p class="text-slate-400">Get immediate sentiment scores for comments as you browse, without any
+                            delay.</p>
                     </div>
 
                     <!-- Feature 2 -->
                     <div class="feature-card p-8 rounded-xl">
-                        <div class="bg-purple-500/10 text-purple-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <div
+                            class="bg-purple-500/10 text-purple-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                             </svg>
                         </div>
                         <h4 class="text-xl font-bold text-white mb-2">Seamless Integration</h4>
-                        <p class="text-slate-400">Sentilytics integrates directly into the YouTube interface for a native, unobtrusive experience.</p>
+                        <p class="text-slate-400">Sentilytics integrates directly into the YouTube interface for a
+                            native, unobtrusive experience.</p>
                     </div>
 
                     <!-- Feature 3 -->
                     <div class="feature-card p-8 rounded-xl">
-                        <div class="bg-emerald-500/10 text-emerald-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        <div
+                            class="bg-emerald-500/10 text-emerald-400 rounded-lg w-12 h-12 flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                         </div>
                         <h4 class="text-xl font-bold text-white mb-2">Visual Summaries</h4>
-                        <p class="text-slate-400">Understand the overall sentiment with easy-to-read charts and visual breakdowns (e.g., % positive, % negative).</p>
+                        <p class="text-slate-400">Understand the overall sentiment with easy-to-read charts and visual
+                            breakdowns (e.g., % positive, % negative).</p>
                     </div>
                 </div>
             </div>
@@ -152,32 +132,41 @@
         <section id="how-it-works" class="py-20">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h3 class="text-3xl md:text-4xl font-bold text-white">Get Started in <span class="gradient-text">3 Easy Steps</span></h3>
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">Get Started in <span class="gradient-text">3
+                            Easy Steps</span></h3>
                 </div>
                 <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16">
                     <!-- Step 1 -->
                     <div class="text-center max-w-xs">
                         <div class="relative mb-4">
                             <div class="text-6xl font-extrabold gradient-text opacity-20">01</div>
-                            <h4 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">Install</h4>
+                            <h4
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">
+                                Install</h4>
                         </div>
-                        <p class="text-slate-400">Add the Sentilytics extension to your Chrome browser from the web store.</p>
+                        <p class="text-slate-400">Add the Sentilytics extension to your Chrome browser from the web
+                            store.</p>
                     </div>
                     <!-- Step 2 -->
                     <div class="text-center max-w-xs">
-                         <div class="relative mb-4">
+                        <div class="relative mb-4">
                             <div class="text-6xl font-extrabold gradient-text opacity-20">02</div>
-                            <h4 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">Browse</h4>
+                            <h4
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">
+                                Browse</h4>
                         </div>
                         <p class="text-slate-400">Navigate to any video on YouTube and open the comments section.</p>
                     </div>
                     <!-- Step 3 -->
                     <div class="text-center max-w-xs">
-                         <div class="relative mb-4">
+                        <div class="relative mb-4">
                             <div class="text-6xl font-extrabold gradient-text opacity-20">03</div>
-                            <h4 class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">Analyze</h4>
+                            <h4
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white">
+                                Analyze</h4>
                         </div>
-                        <p class="text-slate-400">Click the Sentilytics icon to see a full breakdown of comment sentiment.</p>
+                        <p class="text-slate-400">Click the Sentilytics icon to see a full breakdown of comment
+                            sentiment.</p>
                     </div>
                 </div>
             </div>
@@ -189,7 +178,7 @@
         <div class="container mx-auto px-6 py-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-4 md:mb-0">
-                     <h1 class="text-xl font-bold text-white">
+                    <h1 class="text-xl font-bold text-white">
                         Senti<span class="gradient-text">lytics</span>
                     </h1>
                 </div>
@@ -204,55 +193,9 @@
         </div>
     </footer>
 
-    <script>
-        document.getElementById('analyze-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const urlInput = document.getElementById('youtube-url');
-            const errorEl = document.getElementById('url-error');
-            const button = document.getElementById('analyze-button');
-            const url = urlInput.value;
-            
-            const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-            const match = url.match(regex);
-            
-            if (match && match[1]) {
-                const videoId = match[1];
-                errorEl.classList.add('hidden');
-                button.disabled = true;
-                button.textContent = 'Analyzing...';
+    <script src="script.js"></script>
 
-                try {
-                    const apiUrl = `https://sentilyticsbackend-production.up.railway.app/dashboard/${videoId}`;
-                    const response = await fetch(apiUrl);
-
-                    if (!response.ok) {
-                        throw new Error(`API returned status ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    
-                    // Store the videoId and the data in session storage
-                    sessionStorage.setItem('analysisData', JSON.stringify(data));
-                    sessionStorage.setItem('videoId', videoId);
-
-                    // Redirect to the dashboard
-                    window.location.href = `dashboard.html`;
-
-                } catch (error) {
-                    console.error('API call failed:', error);
-                    errorEl.textContent = 'Failed to analyze video. Please check the URL and try again.';
-                    errorEl.classList.remove('hidden');
-                    button.disabled = false;
-                    button.textContent = 'Analyze';
-                }
-
-            } else {
-                errorEl.textContent = 'Please enter a valid YouTube video URL.';
-                errorEl.classList.remove('hidden');
-            }
-        });
-    </script>
 
 </body>
+
 </html>
