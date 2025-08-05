@@ -55,7 +55,7 @@ def analyze_video(video_id):
 def generateReportRoute(video_id):
     try:
         print(f"Fetching comments for video ID: {video_id}")
-        data = fetch_comments(video_id)
+        data, video_title = fetch_comments(video_id)
         print(f"Fetched {len(data)} comments for video ID: {video_id}")
         if data.empty:
             return jsonify({"error": "No comments found for this video."}), 404
@@ -82,10 +82,12 @@ def generateReportRoute(video_id):
 
 
         return jsonify({
+            "video_title":video_title,
             "totalComments": len(data),
             "sentimentCounts": sentiment_counts,
             "graph_urls": graphs_urls,
             "top_liked_comments":{
+                "top_liked_comment":data.nlargest(1,'likecount').to_dict(orient='records'),
                 "positive": data[data['sentiment'] == 'positive'].nlargest(1, 'likecount').to_dict(orient='records'),
                 "negative": data[data['sentiment'] == 'negative'].nlargest(1, 'likecount').to_dict(orient='records'),
                 "neutral": data[data['sentiment'] == 'neutral'].nlargest(1, 'likecount').to_dict(orient='records')
