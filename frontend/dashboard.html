@@ -1,23 +1,47 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analysis Dashboard - Sentilytics</title>
-
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* slate-900 */
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #60A5FA, #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .dashboard-card {
+            background-color: #1E293B; /* slate-800 */
+            border: 1px solid #334155; /* slate-700 */
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: #475569;
+        }
+    </style>
 </head>
-
 <body class="text-slate-300 antialiased">
 
     <!-- Header -->
@@ -35,14 +59,13 @@
     <!-- Main Dashboard Content -->
     <main class="container mx-auto p-6">
         <div class="mb-6">
-            <h2 class="text-2xl font-bold text-white">Analysis for Video ID: <span id="video-id"
-                    class="font-normal">Loading...</span></h2>
+            <h2 class="text-2xl font-bold text-white">Analysis for Video ID: <span id="video-id" class="font-normal">Loading...</span></h2>
             <p class="text-slate-400">Analysis based on the latest comments.</p>
         </div>
 
         <!-- Grid Layout -->
         <div id="dashboard-grid" class="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-
+            
             <!-- Column 1: Summary & Top Comments -->
             <div class="lg:col-span-1 xl:col-span-1 flex flex-col gap-6">
                 <!-- Summary Cards -->
@@ -82,8 +105,7 @@
                 <div class="dashboard-card">
                     <h3 class="font-bold text-lg text-white mb-4">Sentiment Distribution</h3>
                     <div id="sentiment-pie-chart" class="chart-placeholder">
-                        <img id="sentiment-pie-chart-img" src="" alt="Sentiment Distribution Pie Chart"
-                            class="w-full h-auto rounded-lg hidden">
+                        <img id="sentiment-pie-chart-img" src="" alt="Sentiment Distribution Pie Chart" class="w-full h-auto rounded-lg hidden">
                         <span class="placeholder-text">Loading Chart...</span>
                     </div>
                 </div>
@@ -91,8 +113,7 @@
                 <div class="dashboard-card">
                     <h3 class="font-bold text-lg text-white mb-4">Average Likes by Sentiment</h3>
                     <div id="likes-bar-chart" class="chart-placeholder">
-                        <img id="likes-bar-chart-img" src="" alt="Average Likes Bar Chart"
-                            class="w-full h-auto rounded-lg hidden">
+                        <img id="likes-bar-chart-img" src="" alt="Average Likes Bar Chart" class="w-full h-auto rounded-lg hidden">
                         <span class="placeholder-text">Loading Chart...</span>
                     </div>
                 </div>
@@ -100,12 +121,11 @@
 
             <!-- Column 3: Word Cloud & Lists -->
             <div class="lg:col-span-3 xl:col-span-1 flex flex-col gap-6">
-                <!-- Word Cloud -->
+                 <!-- Word Cloud -->
                 <div class="dashboard-card h-80 flex flex-col">
                     <h3 class="font-bold text-lg text-white mb-4">Most Mentioned Words</h3>
                     <div id="word-cloud" class="flex-grow w-full h-full chart-placeholder">
-                        <img id="word-cloud-img" src="" alt="Most Mentioned Words Cloud"
-                            class="w-full h-full object-contain rounded-lg hidden">
+                        <img id="word-cloud-img" src="" alt="Most Mentioned Words Cloud" class="w-full h-full object-contain rounded-lg hidden">
                         <span class="placeholder-text">Loading Word Cloud...</span>
                     </div>
                 </div>
@@ -149,12 +169,102 @@
         </div>
         <div id="error-message" class="hidden text-center text-red-400 text-xl mt-10">
             <p>Could not load analysis data.</p>
-            <p class="text-lg mt-2">Please <a href="home.html" class="underline hover:text-red-300">go back to the
-                    homepage</a> and analyze a video URL.</p>
+            <p class="text-lg mt-2">Please <a href="home.html" class="underline hover:text-red-300">go back to the homepage</a> and analyze a video URL.</p>
         </div>
     </main>
 
-    <script src="script.js"></script>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function updateDashboard(data, videoId) {
+                document.getElementById('video-id').textContent = videoId;
+                
+                // Update summary cards
+                document.getElementById('total-comments').textContent = data.totalComments.toLocaleString();
+                document.getElementById('positive-comments').textContent = data.sentimentCounts.positive.toLocaleString();
+                document.getElementById('negative-comments').textContent = data.sentimentCounts.negative.toLocaleString();
+                document.getElementById('neutral-comments').textContent = data.sentimentCounts.neutral.toLocaleString();
 
+                // Update chart images
+                updateImage('sentiment-pie-chart', data.graph_urls.pie_chart);
+                updateImage('likes-bar-chart', data.graph_urls.bar_chart);
+                updateImage('word-cloud', data.graph_urls.word_cloud);
+
+                // Update top comments - Note the change from 'text' to 'comment' in the response
+                updateComment('top-liked-comment', data.top_liked_comments.positive[0]); // Assuming top liked is top positive
+                updateComment('top-positive-comment', data.top_liked_comments.positive[0]);
+                updateComment('top-negative-comment', data.top_liked_comments.negative[0]);
+                updateComment('top-neutral-comment', data.top_liked_comments.neutral[0]);
+
+                // Update insight lists
+                updateList('questions-list', data.insight.Questions);
+                updateList('suggestions-list', data.insight.Suggestions);
+            }
+
+            function updateImage(containerId, src) {
+                const container = document.getElementById(containerId);
+                const img = container.querySelector('img');
+                const placeholder = container.querySelector('.placeholder-text');
+                if (src) {
+                    img.src = src;
+                    img.onload = () => {
+                        img.classList.remove('hidden');
+                        if(placeholder) placeholder.classList.add('hidden');
+                    };
+                    img.onerror = () => {
+                        if(placeholder) placeholder.textContent = "Chart could not be loaded.";
+                    }
+                } else {
+                    if(placeholder) placeholder.textContent = "Chart not available.";
+                }
+            }
+
+            function updateComment(baseId, commentData) {
+                const textEl = document.getElementById(`${baseId}-text`);
+                const likesEl = document.getElementById(`${baseId}-likes`);
+                if (commentData && commentData.comment) { // Changed from .text to .comment
+                    textEl.textContent = commentData.comment;
+                    likesEl.textContent = `👍 ${commentData.likecount.toLocaleString()} Likes`;
+                } else {
+                    textEl.textContent = "No comment found for this category.";
+                    likesEl.textContent = "";
+                }
+            }
+
+            function updateList(listId, items) {
+                const listEl = document.getElementById(listId);
+                listEl.innerHTML = '';
+                if (items && items.length > 0) {
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        listEl.appendChild(li);
+                    });
+                } else {
+                    listEl.innerHTML = '<li>No items found.</li>';
+                }
+            }
+            
+            function showErrorMessage() {
+                 document.getElementById('dashboard-grid').classList.add('hidden');
+                 document.getElementById('error-message').classList.remove('hidden');
+            }
+
+            // --- Load data from session storage ---
+            const analysisDataString = sessionStorage.getItem('analysisData');
+            const videoId = sessionStorage.getItem('videoId');
+
+            if (analysisDataString && videoId) {
+                try {
+                    const analysisData = JSON.parse(analysisDataString);
+                    updateDashboard(analysisData, videoId);
+                } catch (error) {
+                    console.error("Failed to parse analysis data from session storage:", error);
+                    showErrorMessage();
+                }
+            } else {
+                showErrorMessage();
+            }
+        });
+    </script>
+</body>
 </html>
