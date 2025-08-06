@@ -29,6 +29,7 @@ const sentiments = [
 
 // Backend base URL
 const BACKEND_URL = "https://sentilyticsbackend-production.up.railway.app";
+const HOMEPAGE_URL = "https://sentilytics-ebon.vercel.app";
 
 // Function to extract YouTube video ID from URL
 function getYouTubeVideoId(url) {
@@ -136,8 +137,17 @@ startBtn.addEventListener('click', async () => {
         }, 200);
 
         // Activate "View Detailed Trends" link
-        if (data.details_url) {
-            detailsLink.href = data.details_url;
+        if (data && Object.keys(data).length) {
+            // ✅ Store API response in sessionStorage
+            sessionStorage.setItem('sentilyticsData', JSON.stringify(data));
+
+            detailsLink.href = HOMEPAGE_URL + "/dashboard";
+
+            // Optionally, open dashboard in new tab when clicked
+            detailsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.open(detailsLink.href, "_blank");
+            });
         } else {
             detailsLink.href = BACKEND_URL; // fallback
         }
