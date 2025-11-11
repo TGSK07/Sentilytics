@@ -25,10 +25,10 @@ const sentiments = [
         value: document.querySelector('.percentage-value.negative'),
         tooltip: document.querySelector('.bar.negative + .hover-tooltip'),
     }
-];
+];git 
 
 // Backend base URL
-const BACKEND_URL = "https://sentilyticsbackend-production.up.railway.app";
+const BACKEND_URL = "http://127.0.0.1:5000";
 const HOMEPAGE_URL = "https://sentilytics-ebon.vercel.app";
 
 // Function to extract YouTube video ID from URL
@@ -139,7 +139,8 @@ startBtn.addEventListener('click', async () => {
         // Activate "View Detailed Trends" link
         if (data && Object.keys(data).length) {
             // ✅ Store API response in sessionStorage
-            sessionStorage.setItem('sentilyticsData', JSON.stringify(data));
+            sessionStorage.setItem('analysisData', JSON.stringify(data));
+            sessionStorage.setItem('videoId', JSON.stringify(videoId));
 
             detailsLink.href = HOMEPAGE_URL + "/dashboard";
 
