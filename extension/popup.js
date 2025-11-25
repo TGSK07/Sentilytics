@@ -25,7 +25,7 @@ const sentiments = [
         value: document.querySelector('.percentage-value.negative'),
         tooltip: document.querySelector('.bar.negative + .hover-tooltip'),
     }
-];git 
+]
 
 // Backend base URL
 const BACKEND_URL = "http://127.0.0.1:5000";
@@ -122,7 +122,7 @@ startBtn.addEventListener('click', async () => {
 
     try {
         // 3. Call backend for analysis using video ID in endpoint
-        const response = await fetch(`${BACKEND_URL}/analyze/${videoId}`, { method: "GET" });
+        const response = await fetch(`${BACKEND_URL}/dashboard/${videoId}`, { method: "GET" });
 
         if (!response.ok) throw new Error("Server Error");
 
@@ -131,24 +131,60 @@ startBtn.addEventListener('click', async () => {
         // data expected: { positive: 70, neutral: 22, negative: 8, details_url: "..." }
         setTimeout(() => {
             total = data.totalComments || 1;
-            setSentimentBar('positive', Math.round((data.positive / total) * 100));
-            setSentimentBar('neutral', Math.round((data.neutral / total) * 100));
-            setSentimentBar('negative', Math.round((data.negative / total) * 100));
+            setSentimentBar('positive', Math.round((data.sentimentCounts.positive / total) * 100));
+            setSentimentBar('neutral', Math.round((data.sentimentCounts.neutral / total) * 100));
+            setSentimentBar('negative', Math.round((data.sentimentCounts.negative / total) * 100));
         }, 200);
 
         // Activate "View Detailed Trends" link
         if (data && Object.keys(data).length) {
-            // ✅ Store API response in sessionStorage
+            // keep local sessionStorage copy (doesn't change your current logic)
             sessionStorage.setItem('analysisData', JSON.stringify(data));
             sessionStorage.setItem('videoId', JSON.stringify(videoId));
 
-            detailsLink.href = HOMEPAGE_URL + "/dashboard";
+            // Create backend session and then set the dashboard URL (await so we always have sessionId)
+            try {
+                console.log('Creating session on backend...');
+                const resp = await fetch(`${BACKEND_URL}/session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payload: data })
+                });
 
-            // Optionally, open dashboard in new tab when clicked
-            detailsLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.open(detailsLink.href, "_blank");
-            });
+                if (!resp.ok) {
+                    console.warn('Session creation failed, status:', resp.status);
+                    // fallback to old behaviour (no sid)
+                    detailsLink.href = HOMEPAGE_URL + '/dashboard';
+                } else {
+                    const json = await resp.json();
+                    const sessionId = json.session_id;
+                    const dashboardUrl = `${HOMEPAGE_URL}/dashboard?sid=${sessionId}`;
+
+                    // set href for visual / fallback usage
+                    detailsLink.href = dashboardUrl;
+                    console.log('Session created, dashboardUrl =', dashboardUrl);
+
+                    // Set a single click handler that opens dashboard in a new tab (extension-friendly)
+                    detailsLink.onclick = (e) => {
+                        e.preventDefault();
+                        // If extension API available, use chrome.tabs.create (more reliable)
+                        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+                            chrome.tabs.create({ url: dashboardUrl }, (tab) => {
+                                console.log('Opened dashboard tab:', tab);
+                            });
+                        } else {
+                            // fallback: open in new window/tab
+                            window.open(dashboardUrl, '_blank');
+                        }
+                        return false;
+                    };
+                }
+            } catch (e) {
+                console.error('Failed to create session on backend:', e);
+                detailsLink.href = HOMEPAGE_URL + '/dashboard';
+                // still ensure click opens something
+                detailsLink.onclick = (ev) => { ev.preventDefault(); window.open(detailsLink.href, '_blank'); return false; };
+            }
         } else {
             detailsLink.href = BACKEND_URL; // fallback
         }
