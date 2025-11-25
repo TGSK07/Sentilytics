@@ -98,29 +98,6 @@ def home():
     return jsonify({"message": "Welcome to the Sentilytics API!"})
 
 
-@app.route("/analyze/<video_id>", methods=['GET'])
-def analyze_video(video_id):
-    try:
-        print(f"Fetching comments for video ID: {video_id}")
-        data, video_title = fetch_comments(video_id)
-        print(f"Fetched {len(data)} comments for video ID: {video_id}")
-        if data.empty:
-            return jsonify({"error": "No comments found for this video."}), 404
-        
-        # Clean comments and predict sentiment
-        data['comment'] = data['comment'].astype(str).apply(clean_comment)
-        data['sentiment'] = data['comment'].astype(str).apply(predict_sentiment)
-
-        sentiment_counts = data['sentiment'].value_counts().to_dict()
-        sentiment_counts["totalComments"] = len(data) or 1
-        sentiment_counts["video_title"] = video_title
-        print(sentiment_counts)
-        return jsonify(sentiment_counts)
-    
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @app.route('/dashboard/<video_id>', methods=['GET'])
 def generateReportRoute(video_id):
     try:
