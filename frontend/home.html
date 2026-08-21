@@ -256,7 +256,7 @@
                 button.textContent = 'Analyzing...';
 
                 try {
-                    const apiUrl = `http://127.0.0.1:5000/dashboard/${videoId}`;
+                    const apiUrl = `https://sentilytics-qw0u.onrender.com/dashboard/${videoId}`;
                     const response = await fetch(apiUrl);
 
                     if (!response.ok) {
