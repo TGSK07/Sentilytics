@@ -220,7 +220,7 @@ def generateInsights(data):
     {comments_text}
     ---
     """
-    model = genai.GenerativeModel("gemma-3n-e2b-it")
+    model = genai.GenerativeModel("gemma-4-26b-a4b-it")
     response = model.generate_content(prompt, generation_config=genai.types.GenerationConfig(temperature=0.2, max_output_tokens=1000))
 
     try:
