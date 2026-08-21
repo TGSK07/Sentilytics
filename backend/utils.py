@@ -224,7 +224,17 @@ def generateInsights(data):
     response = model.generate_content(prompt, generation_config=genai.types.GenerationConfig(temperature=0.2, max_output_tokens=1000))
 
     try:
-        insights = json.loads(response.text.replace("```", "")[4:])
+        raw_text = response.text.strip()
+        # Clean potential markdown fences
+        if raw_text.startswith("```json"):
+            raw_text = raw_text[7:]
+        elif raw_text.startswith("```"):
+            raw_text = raw_text[3:]
+        if raw_text.endswith("```"):
+            raw_text = raw_text[:-3]
+        
+        insights = json.loads(raw_text.strip())
+        
         if 'Question' in insights:
             insights = {
                 "Questions": insights.get('Question', []),
